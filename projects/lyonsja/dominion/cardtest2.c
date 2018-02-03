@@ -72,8 +72,8 @@ int main() {
     shuffledCards = 5;
     
 	printf("hand count = %d, expected = %d\n", testG.handCount[thisPlayer],
-			G.handCount[thisPlayer]);
-    flag = cAssert(testG.handCount[thisPlayer], G.handCount[thisPlayer], flag);
+			G.handCount[thisPlayer] - discarded);
+    flag = cAssert(testG.handCount[thisPlayer], G.handCount[thisPlayer] - discarded, flag);
     
 	printf("deck count = %d, expected = %d\n", testG.deckCount[thisPlayer],
 			G.deckCount[thisPlayer] - shuffledCards);
@@ -97,11 +97,11 @@ int main() {
     shuffledCards = 4;
     drawnCards = 1;
 	printf("hand count = %d, expected = %d\n", testG.handCount[thisPlayer],
-			G.handCount[thisPlayer] + drawnCards);
-    flag = cAssert(testG.handCount[thisPlayer], G.handCount[thisPlayer] + drawnCards, flag);
+			G.handCount[thisPlayer] + drawnCards - discarded);
+    flag = cAssert(testG.handCount[thisPlayer], G.handCount[thisPlayer] + drawnCards - discarded, flag);
 	printf("deck count = %d, expected = %d\n", testG.deckCount[thisPlayer],
 			G.deckCount[thisPlayer] - shuffledCards - drawnCards);
-	flag = cAssert(testG.deckCount[thisPlayer],  G.deckCount[thisPlayer] - shuffledCards, flag);
+	flag = cAssert(testG.deckCount[thisPlayer],  G.deckCount[thisPlayer] - shuffledCards - drawnCards, flag);
     
     
     
@@ -125,15 +125,15 @@ int main() {
     /*No cards should have been shuffled*/
     
 	printf("hand count = %d, expected = %d\n", testG.handCount[thisPlayer],
-			G.handCount[thisPlayer] + drawnCards);
-    flag = cAssert(testG.handCount[thisPlayer], G.handCount[thisPlayer] + drawnCards, flag);
+			G.handCount[thisPlayer] + drawnCards - discarded);
+    flag = cAssert(testG.handCount[thisPlayer], G.handCount[thisPlayer] + drawnCards - discarded, flag);
 	printf("deck count = %d, expected = %d\n", testG.deckCount[thisPlayer],
-			G.deckCount[thisPlayer] - drawnCards + discarded);
-	flag = cAssert(testG.deckCount[thisPlayer],  G.deckCount[thisPlayer] - drawnCards + discarded, flag);
+			G.deckCount[thisPlayer] - drawnCards);
+	flag = cAssert(testG.deckCount[thisPlayer],  G.deckCount[thisPlayer] - drawnCards, flag);
     
     
 	if(flag){
-		printf("\n >>>>> SUCCESS: Testing complete %s <<<<<\n\n", TESTCARD);
+		printf("\n %%%%%%%%%%%%%%%%%%%%SUCCESS: TESTING COMPLETE %s %%%%%%%%%%%%%%%%%%%%\n\n", TESTCARD);
 	}
 	else{
         printf("\n >>>>> TEST FAILURE: Testing complete %s <<<<<\n\n", TESTCARD);

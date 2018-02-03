@@ -103,8 +103,8 @@ int main() {
     printf("action count = %d, expected = %d\n", testG.numActions, G.numActions + additActions);
     flag = cAssert(testG.numActions, G.numActions + additActions, flag);
 
-    if(flag){
-		printf("\n >>>>> SUCCESS: Testing complete %s <<<<<\n\n", TESTCARD);
+   if(flag){
+		printf("\n %%%%%%%%%%%%%%%%%%%%SUCCESS: TESTING COMPLETE %s %%%%%%%%%%%%%%%%%%%%\n\n", TESTCARD);
 	}
 	else{
         printf("\n >>>>> TEST FAILURE: Testing complete %s <<<<<\n\n", TESTCARD);

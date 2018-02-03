@@ -82,8 +82,29 @@ int main() {
     flag = cAssert(testG.numActions, G.numActions, flag);
     
     
+    
+    printf("@@@@@@@@@@ Test: NO cards in deck@@@@@@@@@@\n\n");
+    G.deckCount[thisPlayer] = 0;
+    memcpy(&testG, &G, sizeof(struct gameState));
+    
+	cardEffect(great_hall, choice1, choice2, choice3, &testG, handpos, &bonus);
+    
+    drawnCards = 0;
+    
+	printf("hand count = %d, expected = %d\n", testG.handCount[thisPlayer],
+			G.handCount[thisPlayer] + drawnCards - discarded);
+    flag = cAssert(testG.handCount[thisPlayer], G.handCount[thisPlayer] + drawnCards - discarded, flag);
+    
+	printf("deck count = %d, expected = %d\n", testG.deckCount[thisPlayer],
+			G.deckCount[thisPlayer] - drawnCards);
+    
+    flag = cAssert(testG.deckCount[thisPlayer], G.handCount[thisPlayer] - drawnCards, flag);
+    
+    printf("action count = %d, expected = %d\n", testG.numActions, G.numActions);
+    flag = cAssert(testG.numActions, G.numActions, flag);
+    
     if(flag){
-		printf("\n >>>>> SUCCESS: Testing complete %s <<<<<\n\n", TESTCARD);
+		printf("\n %%%%%%%%%%%%%%%%%%%%SUCCESS: TESTING COMPLETE %s %%%%%%%%%%%%%%%%%%%%\n\n", TESTCARD);
 	}
 	else{
         printf("\n >>>>> TEST FAILURE: Testing complete %s <<<<<\n\n", TESTCARD);
