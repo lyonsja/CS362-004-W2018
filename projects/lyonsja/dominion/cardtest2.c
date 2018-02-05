@@ -47,7 +47,6 @@ int main() {
 	int seed = 1000;
 	int numPlayers = 2;
 	int thisPlayer = 0;
-    int otherPlayer = 1;
 	struct gameState G, testG;
 
 	int k[10] = {adventurer, embargo, village, minion, mine, cutpurse,
