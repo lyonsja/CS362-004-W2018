@@ -72,7 +72,7 @@ int main() {
     printf("@@@@@@@@@@ Test: NO cards left in supply pile @@@@@@@@@@\n\n");
     G.numBuys = 1;
     G.coins = 5;
-    
+    G.supplyCount[11] = 0;
     printf("buyCard returned %d, expected: %d\n", buyCard(11, &G), -1);
     
     G.numBuys = 1;
@@ -80,10 +80,8 @@ int main() {
     
     flag = cAssert(buyCard(11, &G), -1, flag);
     
-    
-    
-    
     printf("@@@@@@@@@@ Test: Insufficient buying power @@@@@@@@@@\n\n");
+    G.supplyCount[11] = 10;
     G.numBuys = 1;
     G.coins = 3;
     
