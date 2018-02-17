@@ -38,10 +38,11 @@ int testSmithy(int p, struct gameState* G)
 
     int hpos = 0;
     int result;
-
+    printf("FLAG II\n");
     result = playSmithy(p, &testG, hpos);
 
     if (G->deckCount[p] >= 3) {
+        printf("FLAG III\n");
         G->handCount[p] = G->handCount[p] + 3;
         /*G.hand[p][G.handCount[p]-1] = G. */
     } else if (G->discardCount[p] > 0) {
@@ -73,7 +74,7 @@ int main()
 
     int testResult;
     int p = 0; /*Player*/
-    int q, i;
+    int q, i, j, k;
 
     /*Randomize Game State */
 
@@ -82,6 +83,17 @@ int main()
             ((char*)&G)[i] = floor(Random() * 256);
         }
         int p = 0;
+        int hc = floor(Random() * MAX_HAND);
+        int dc = floor(Random() * MAX_DECK);
+        G.handCount[p] = hc;
+        G.deckCount[p] = dc;
+        printf("FLAG I\n");
+        for(int j = 0; j < dc; j++){
+            G.deck[p][j] = floor(Random() * 26);
+        }
+        for(k = 0; k < hc; k++){
+            G.hand[p][k] = floor(Random() * 26);
+        }
 
         testResult = testSmithy(p, &G);
     }
