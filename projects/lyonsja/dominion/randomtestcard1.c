@@ -16,13 +16,13 @@
 
 int playSmithy(int currentPlayer, struct gameState* state, int handPos);
 
-int cAssert(int arg1, int arg2, int flag)
+int cAssert(int arg1, int arg2, int flag, char* under_test)
 {
-    if (arg1 == arg2) {
-        printf("__________Test Passed__________\n\n");
-    } else {
-        printf("__________Test Failed__________\n\n");
+    if (arg1 != arg2) {
+        printf("__________Testing %s Failed__________\n\n", under_test);
         flag = 0;
+    } else{
+        printf("__________Testing %s Passed__________\n\n", under_test);
     }
     if (flag == 0) {
         return 0;
@@ -31,24 +31,34 @@ int cAssert(int arg1, int arg2, int flag)
     }
 }
 
-int testSmithy(int p, struct gameState* G)
+int testSmithy(int p, struct gameState* G, int flag)
 {
     struct gameState testG;
     memcpy(&testG, G, sizeof(struct gameState));
 
-    int hpos = 0;
+    int hpos = 1;
     int result;
-    printf("FLAG II\n");
+    /*printf("FLAG II\n"); */
     result = playSmithy(p, &testG, hpos);
 
+    /*Oracle*/
+
     if (G->deckCount[p] >= 3) {
-        printf("FLAG III\n");
-        G->handCount[p] = G->handCount[p] + 3;
-        /*G.hand[p][G.handCount[p]-1] = G. */
+        /*printf("FLAG III\n"); */
+
+        /*Check that 3 cards were drawn into the hand -1 for discarding Smithy*/
+        G->handCount[p] = G->handCount[p] + 2;
+        flag = cAssert(G->handCount[p], testG.handCount[p], flag, "handCount");
+        G->deckCount[p] = G->deckCount[p] - 3;
+        flag = cAssert(G->deckCount[p], testG.deckCount[p], flag, "deckCount");
+
+        /*G->hand[p][G->handCount[p]-1] = */
     } else if (G->discardCount[p] > 0) {
+        G->discardCount[p] = 0;
+        flag = cAssert(G->discardCount[p], testG.discardCount[p], flag, "discardCount");
     }
 
-    return 0; /*temporary*/
+    return flag; /*temporary*/
 }
 
 int main()
@@ -74,7 +84,7 @@ int main()
 
     int testResult;
     int p = 0; /*Player*/
-    int q, i, j, k;
+    int q, i, j, k, l;
 
     /*Randomize Game State */
 
@@ -83,19 +93,26 @@ int main()
             ((char*)&G)[i] = floor(Random() * 256);
         }
         int p = 0;
-        int hc = floor(Random() * MAX_HAND);
-        int dc = floor(Random() * MAX_DECK);
+        int hc = floor(Random() * 10);
+        int dc = floor(Random() * 15);
+        int dsc = floor(Random() * 15);
         G.handCount[p] = hc;
         G.deckCount[p] = dc;
-        printf("FLAG I\n");
-        for(int j = 0; j < dc; j++){
-            G.deck[p][j] = floor(Random() * 26);
+        G.discardCount[p] = dsc;
+        printf("\nIteration %d, deckCount is: %d, discardCount is: %d \n", q, dc, dsc);
+
+        for (int j = 0; j < dc; j++) {
+            G.deck[p][j] = floor(Random() * 27);
         }
-        for(k = 0; k < hc; k++){
-            G.hand[p][k] = floor(Random() * 26);
+        for (k = 0; k < hc; k++) {
+            G.hand[p][k] = floor(Random() * 27);
+        }
+        for (l = 0; l < dsc; l++) {
+            G.discard[p][l] = floor(Random() * 27);
         }
 
-        testResult = testSmithy(p, &G);
+        G.playedCardCount = 1;
+        flag = testSmithy(p, &G, flag);
     }
 
     if (flag) {
