@@ -14,13 +14,24 @@
 
 #define TESTCARD "adventurer"
 
+/*Option to print additional error information
+ * 1 will print additional information
+ * 0 to not print */
+#define MSG_OPTION 1
+
+int playAdventurer(int currentPlayer, struct gameState* state, int temphand[], int z, int cardDrawn, int drawntreasure);
+
 int cAssert(int arg1, int arg2, int flag, char* under_test)
 {
     if (arg1 != arg2) {
-        printf("__________Testing %s Failed__________\n\n", under_test);
+        if (MSG_OPTION) {
+            printf("__________Testing %s Failed__________\n\n", under_test);
+        }
         flag = 0;
     } else {
-        printf("__________Testing %s Passed__________\n\n", under_test);
+        if (MSG_OPTION) {
+            printf("__________Testing %s Passed__________\n\n", under_test);
+        }
     }
     if (flag == 0) {
         return 0;
@@ -28,6 +39,14 @@ int cAssert(int arg1, int arg2, int flag, char* under_test)
         return 1;
     }
 }
+
+void message(char* desc, int a, int b)
+{
+    if (MSG_OPTION) {
+        printf("%s expected: %d, actual: %d\n", desc, a, b);
+    }
+}
+
 int testAdventurer(int p, struct gameState* G, int flag, int treas_deck, int treas_disc)
 {
     struct gameState testG;
@@ -35,26 +54,50 @@ int testAdventurer(int p, struct gameState* G, int flag, int treas_deck, int tre
 
     int cardDrawn = 0, z = 0, drawnTreasure = 0;
     int result;
-    int temphand[MAX_HAND];
+    int tmphand[MAX_HAND];
+    int total_cards;
     /*printf("FLAG II\n"); */
-    flag = playAdventurer(p, &testG, temphand[255], z, cardDrawn, drawnTreasure);
-
+    result = playAdventurer(p, &testG, tmphand, z, cardDrawn, drawnTreasure);
+    total_cards = G->deckCount[p] + G->discardCount[p];
     /*Oracle*/
 
-    if (G->deckCount[p] >= 3) {
-        /*printf("FLAG III\n"); */
-        G->handCount[p] = G->handCount[p] + 2;
+    if (treas_deck >= 2) {
+        /*Handcount should increase by 2 -1 for discarding Adventurer*/
+        G->handCount[p] = G->handCount[p] + 1;
+        message("handCount", G->handCount[p], testG.handCount[p]);
         flag = cAssert(G->handCount[p], testG.handCount[p], flag, "handCount");
-        G->deckCount[p] = G->deckCount[p] - 3;
+
+        G->deckCount[p] = G->deckCount[p] - 2;
+        message("deckCount", G->deckCount[p], testG.deckCount[p]);
         flag = cAssert(G->deckCount[p], testG.deckCount[p], flag, "deckCount");
 
-        /*G->hand[p][G->handCount[p]-1] = */
-    } else if (G->discardCount[p] > 0) {
-        G->discardCount[p] = 0;
-        flag = cAssert(G->discardCount[p], testG.discardCount[p], flag, "discardCount");
+    } else if (treas_disc >= 2) { /*Shuffle should be triggered regardless*/
+
+        G->handCount[p] = G->handCount[p] + 1;
+        message("handCount", G->handCount[p], testG.handCount[p]);
+        flag = cAssert(G->handCount[p], testG.handCount[p], flag, "handCount");
+        /*Total cards -2 drawn into hand by Adventurer + 1 from discarding Adventurer*/
+        message("deck + discard count", total_cards - 1, testG.discardCount[p] + testG.deckCount[p]);
+        flag = cAssert(total_cards - 1, testG.discardCount[p] + testG.deckCount[p], flag, "deck + discard count");
+    } else if (treas_disc + treas_deck == 1) {
+
+        /*handCount should be unchanged in this case*/
+        message("handCount", G->handCount[p], testG.handCount[p]);
+        flag = cAssert(G->handCount[p], testG.handCount[p], flag, "handCount");
+        /*Total cards -1 drawn into hand by Adventurer + 1 from discarding Adventurer*/
+        message("deck + discard count", total_cards, testG.discardCount[p] + testG.deckCount[p]);
+        flag = cAssert(total_cards, testG.discardCount[p] + testG.deckCount[p], flag, "deck + discard count");
+    } else if (treas_disc + treas_deck == 0) {
+
+        G->handCount[p] = G->handCount[p] - 1;
+        message("handCount", G->handCount[p], testG.handCount[p]);
+        flag = cAssert(G->handCount[p], testG.handCount[p], flag, "handCount");
+        /*Total cards 0 drawn into hand by Adventurer + 1 from discarding Adventurer*/
+        message("deck + discard count", total_cards + 1, testG.discardCount[p] + testG.deckCount[p]);
+        flag = cAssert(total_cards + 1, testG.discardCount[p] + testG.deckCount[p], flag, "deck + discard count");
     }
 
-    return flag; /*temporary*/
+    return flag;
 }
 
 int main()
@@ -98,8 +141,9 @@ int main()
         G.handCount[p] = hc;
         G.deckCount[p] = dc;
         G.discardCount[p] = dsc;
-        printf("\nIteration %d, treasure in deck %d, treasure in discard: %d \n", q, dc, dsc);
+       printf("handCount pre-play is: %d\n", hc);
 
+        /*Filling deck, hand, and discard with random valid cards*/
         for (int j = 0; j < dc; j++) {
             tmp = floor(Random() * 27);
             G.deck[p][j] = tmp;
