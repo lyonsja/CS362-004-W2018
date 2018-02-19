@@ -24,14 +24,10 @@ int playAdventurer(int currentPlayer, struct gameState* state, int temphand[], i
 int cAssert(int arg1, int arg2, int flag, char* under_test)
 {
     if (arg1 != arg2) {
-        if (MSG_OPTION) {
-            printf("__________Testing %s Failed__________\n\n", under_test);
-        }
+        printf("__________Testing %s Failed__________\n\n", under_test);
         flag = 0;
     } else {
-        if (MSG_OPTION) {
-            printf("__________Testing %s Passed__________\n\n", under_test);
-        }
+        printf("__________Testing %s Passed__________\n\n", under_test);
     }
     if (flag == 0) {
         return 0;
@@ -66,8 +62,9 @@ int testAdventurer(int p, struct gameState* G, int flag, int treas_deck, int tre
         G->handCount[p] = G->handCount[p] + 1;
         message("handCount", G->handCount[p], testG.handCount[p]);
         flag = cAssert(G->handCount[p], testG.handCount[p], flag, "handCount");
+        int n_cards_discarded = testG.discardCount[p] - G->discardCount[p];
 
-        G->deckCount[p] = G->deckCount[p] - 2;
+        G->deckCount[p] = G->deckCount[p] - 2 - n_cards_discarded;
         message("deckCount", G->deckCount[p], testG.deckCount[p]);
         flag = cAssert(G->deckCount[p], testG.deckCount[p], flag, "deckCount");
 
@@ -132,16 +129,15 @@ int main()
             ((char*)&G)[i] = floor(Random() * 256);
         }
         int p = 0;
-        int hc = floor(Random() * 10);
-        int dc = floor(Random() * 30);
-        int dsc = floor(Random() * 30);
+        int hc = floor(Random() * 10) + 1; /*Hand should at least contain the card played*/
+        int dc = floor(Random() * 41);
+        int dsc = floor(Random() * 41);
 
         /*treasure count for deck, discard */
         int treas_deck = 0, treas_disc = 0, tmp = 0;
         G.handCount[p] = hc;
         G.deckCount[p] = dc;
         G.discardCount[p] = dsc;
-       printf("handCount pre-play is: %d\n", hc);
 
         /*Filling deck, hand, and discard with random valid cards*/
         for (int j = 0; j < dc; j++) {

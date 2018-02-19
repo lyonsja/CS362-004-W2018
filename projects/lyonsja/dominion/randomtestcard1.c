@@ -14,6 +14,11 @@
 
 #define TESTCARD "smithy"
 
+/*Option to print additional error information
+ * 1 will print additional information
+ * 0 to not print */
+#define MSG_OPTION 1
+
 int playSmithy(int currentPlayer, struct gameState* state, int handPos);
 
 int cAssert(int arg1, int arg2, int flag, char* under_test)
@@ -21,7 +26,7 @@ int cAssert(int arg1, int arg2, int flag, char* under_test)
     if (arg1 != arg2) {
         printf("__________Testing %s Failed__________\n\n", under_test);
         flag = 0;
-    } else{
+    } else {
         printf("__________Testing %s Passed__________\n\n", under_test);
     }
     if (flag == 0) {
@@ -31,30 +36,68 @@ int cAssert(int arg1, int arg2, int flag, char* under_test)
     }
 }
 
+void message(char* desc, int a, int b)
+{
+    if (MSG_OPTION) {
+        printf("%s expected: %d, actual: %d\n", desc, a, b);
+    }
+}
+
 int testSmithy(int p, struct gameState* G, int flag)
 {
     struct gameState testG;
     memcpy(&testG, G, sizeof(struct gameState));
 
-    int hpos = 1;
+    int hpos = 0;
     int result;
-    /*printf("FLAG II\n"); */
     result = playSmithy(p, &testG, hpos);
 
     /*Oracle*/
 
     if (G->deckCount[p] >= 3) {
-        /*printf("FLAG III\n"); */
 
         /*Check that 3 cards were drawn into the hand -1 for discarding Smithy*/
         G->handCount[p] = G->handCount[p] + 2;
+        message("handCount", G->handCount[p], testG.handCount[p]);
         flag = cAssert(G->handCount[p], testG.handCount[p], flag, "handCount");
+
         G->deckCount[p] = G->deckCount[p] - 3;
+        message("deckCount", G->deckCount[p], testG.deckCount[p]);
         flag = cAssert(G->deckCount[p], testG.deckCount[p], flag, "deckCount");
 
-        /*G->hand[p][G->handCount[p]-1] = */
-    } else if (G->discardCount[p] > 0) {
-        G->discardCount[p] = 0;
+        /*Check if smithy is discarded*/
+        G->discardCount[p] = G->discardCount[p] + 1;
+        message("discardCount", G->discardCount[p], testG.discardCount[p]);
+        flag = cAssert(G->discardCount[p], testG.discardCount[p], flag, "discardCount");
+    } else if (G->discardCount[p] >= 3) { /*Case where deck is empty, discard has at least 3 cards*/
+        G->handCount[p] = G->handCount[p] + 2;
+        message("handCount", G->handCount[p], testG.handCount[p]);
+        flag = cAssert(G->handCount[p], testG.handCount[p], flag, "handCount");
+
+        /*Check if smithy is discarded*/
+        G->discardCount[p] = 1;
+        flag = cAssert(G->discardCount[p], testG.discardCount[p], flag, "discardCount");
+    } else if (G->discardCount[p] + G->deckCount[p] < 3 && G->discardCount[p] + G->deckCount[p] > 0) {
+        /*Case where only 2 or 1 cards in deck + discard*/
+        int n_cards_drawn = G->discardCount[p] + G->deckCount[p] - 1;
+        G->handCount[p] = G->handCount[p] + n_cards_drawn;
+        message("handCount", G->handCount[p], testG.handCount[p]);
+        flag = cAssert(G->handCount[p], testG.handCount[p], flag, "handCount");
+
+        /*Check if smithy is discarded*/
+        G->discardCount[p] = 1;
+        flag = cAssert(G->discardCount[p], testG.discardCount[p], flag, "discardCount");
+    } else { /*Case where 0 cards in deck + discard*/
+        G->handCount[p] = G->handCount[p] - 1;
+        message("handCount", G->handCount[p], testG.handCount[p]);
+        flag = cAssert(G->handCount[p], testG.handCount[p], flag, "handCount");
+
+        /*deckCount should not change*/
+        message("deckCount", G->deckCount[p], testG.deckCount[p]);
+        flag = cAssert(G->deckCount[p], testG.deckCount[p], flag, "deckCount");
+
+        /*Check if smithy is discarded*/
+        G->discardCount[p] = 1;
         flag = cAssert(G->discardCount[p], testG.discardCount[p], flag, "discardCount");
     }
 
@@ -63,22 +106,11 @@ int testSmithy(int p, struct gameState* G, int flag)
 
 int main()
 {
-    /* int discarded = 1;
-    int shuffledCards = 0;
-    int drawnCards = 0;
-    int i, j, m; 
-    int seed = 1000;
-    int numPlayers = 2; */
     int flag = 1;
     struct gameState G;
 
-    /*int k[10] = { adventurer, embargo, village, minion, mine, cutpurse,
-        sea_hag, tribute, smithy, council_room };*/
-
     SelectStream(5);
     PutSeed(7);
-
-    /*initializeGame(numPlayers, k, seed, &G);*/
 
     printf("------------------ Testing Card: %s ------------------\n", TESTCARD);
 
@@ -93,7 +125,7 @@ int main()
             ((char*)&G)[i] = floor(Random() * 256);
         }
         int p = 0;
-        int hc = floor(Random() * 10);
+        int hc = floor(Random() * 10) + 1;
         int dc = floor(Random() * 15);
         int dsc = floor(Random() * 15);
         G.handCount[p] = hc;

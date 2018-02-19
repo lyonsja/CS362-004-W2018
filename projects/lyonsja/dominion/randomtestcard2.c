@@ -134,7 +134,7 @@ int main()
             ((char*)&G)[i] = floor(Random() * 256);
         }
         int p = 0;
-        int hc = floor(Random() * 10);
+        int hc = floor(Random() * 10) + 1;
         int dc = floor(Random() * 15);
         int dsc = floor(Random() * 15);
         G.numActions = floor(Random() * 8);
