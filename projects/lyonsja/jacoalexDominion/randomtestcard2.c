@@ -19,7 +19,7 @@
  * 0 to not print */
 #define MSG_OPTION 1
 
-int playVillage(int currentPlayer, struct gameState* state, int handPos);
+int handle_card_village(int currentPlayer, struct gameState* state, int handPos);
 
 int cAssert(int arg1, int arg2, int flag, char* under_test)
 {
@@ -50,7 +50,7 @@ int testVillage(int p, struct gameState* G, int flag)
 
     int hpos = 1;
     int result;
-    result = playVillage(p, &testG, hpos);
+    result = handle_card_village(p, &testG, hpos);
 
     /*Oracle*/
 
