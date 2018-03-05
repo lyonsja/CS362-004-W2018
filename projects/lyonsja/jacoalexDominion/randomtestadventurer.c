@@ -19,7 +19,7 @@
  * 0 to not print */
 #define MSG_OPTION 1
 
-int playAdventurer(int currentPlayer, struct gameState* state, int temphand[], int z, int cardDrawn, int drawntreasure);
+int handle_card_adventurer(int drawntreasure, struct gameState* state, int currentPlayer, int temphand[], int z, int cardDrawn);
 
 int cAssert(int arg1, int arg2, int flag, char* under_test)
 {
@@ -53,7 +53,7 @@ int testAdventurer(int p, struct gameState* G, int flag, int treas_deck, int tre
     int tmphand[MAX_HAND];
     int total_cards;
     /*printf("FLAG II\n"); */
-    result = playAdventurer(p, &testG, tmphand, z, cardDrawn, drawnTreasure);
+    result = handle_card_adventurer(drawnTreasure, &testG, p, tmphand, z, cardDrawn);
     total_cards = G->deckCount[p] + G->discardCount[p];
     /*Oracle*/
 
