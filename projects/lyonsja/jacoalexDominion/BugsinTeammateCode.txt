@@ -1,0 +1,30 @@
+Jacob Lyons
+CS362/Aburas
+4 March 2018
+
+BugsinTeamMateCode.txt
+
+
+*****Bug-Reports*****
+
+I discovered a bug in my teammate’s code where smithy draws an extra card than it should. 
+I believe this bug can be traced back to their handle_card_smithy function. 
+The for loop in that function should have the parameter i < 3 but it is actually i <= 3, making smithy draw 4 cards instead of 3. 
+I found this bug by just running my cardtest1 test which checks the smithy card via running the cardEffect function. 
+In my opinion, this bug will be a simple fix, but it is of medium priority considering it breaks game balance but does not cause crashes (generally).
+
+I discovered another bug in my teammate’s code where adventurer draws an additional card. 
+I was able to trace this bug to line 669 in their dominion.c file I believe. 
+Here, they have a drawCard function call with no check as to the status of the player’s deck. 
+I was able to detect this bug just from my unit test of adventurer. 
+However, I also decided to refactor my randomtestadventurer function to be compatible with my teammate’s code so that I could run further tests. 
+While examining my results from my random tests of adventurer, I found that unexpected behavior was produced when there were 0 treasure cards in both the deck and discard. 
+This caused some sort of overflow resulting in erroneously huge values for the deck and hand sizes. 
+This helped lead me to find that the handle_card_adventurer function draws a card without any check if that is actually a valid option in the current gamestate. 
+I believe this bug is of higher priority considering it has the potential to break the game by causing overflows.
+
+A third bug that I discovered I was able to trace back to the handle_card_village function. 
+I found this bug by running my cardtest4 (testing village) against my teammate’s dominion.c code. 
+My test printouts showed me that village was subtracting actions from the players action count as opposed to adding them. 
+This resulted in strange situations such as the player having -1 actions. 
+This bug should be a relatively easy fix as I believe we just need to change the -2 on line 733 in handle_card_village to a +2 (although actually +1 considering there was an existing bug that complicates things further).
